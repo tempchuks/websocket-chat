@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+
+    <label for="username">Enter your username:</label>
+    <input type="text" id="username" placeholder="Username">
+    <label for="recipient">Enter your Recipient:</label>
+    <input type="text" id="recipient" placeholder="Recipient">
+    <button onclick="connect()">Connect</button>
+
+    <div id="chat" style="display: none;">
+        <h2>Chat</h2>
+        <div id="messages" style="border: 1px solid #000; height: 300px; overflow-y: scroll;"></div>
+
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let ws;
+
+        function connect() {
+             const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = ""
+            const username = document.getElementById('username').value.trim();
+            const recipient = document.getElementById('recipient').value.trim()
+
+            if (!username) {
+                alert('Please enter a username.');
+                return;
+            }
+
+            // Adjust the URL to match your WebSocket server address
+       
+                
+                ws = new WebSocket(`ws://127.0.0.1:8080/ws?username=${username}&recipient=${recipient}`);
+            
+
+            ws.onopen = () => {
+                document.getElementById('chat').style.display = 'block';
+                appendMessage('Connected to server as ' + username);
+            };
+
+            ws.onmessage = (event) => {
+                const msg = JSON.parse(event.data)
+                if (msg.from !== recipient && msg.from !== username&&msg.from) return
+                appendMessage(msg.content);
+
+               
+            };
+
+            ws.onclose = () => {
+                appendMessage('Disconnected from server.');
+            };
+
+            ws.onerror = (err) => {
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = ""
+                console.error('WebSocket error:', err);
+                appendMessage('Error connecting to server.');
+            };
+        }
+
+        function sendMessage() {
+            const message = document.getElementById('messageInput').value.trim();
+            if (message && ws && ws.readyState === WebSocket.OPEN) {
+                const recipient = document.getElementById('recipient').value.trim()
+                const content = {
+                    from: username.value,
+                    to: recipient,
+                    content:message
+                }
+               
+                ws.send(JSON.stringify(content));
+                
+                document.getElementById('messageInput').value = '';
+            }
+        }
+
+        function appendMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

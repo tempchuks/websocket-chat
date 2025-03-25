@@ -1,0 +1,19 @@
+# Ignore all .env files (for secrets)
+.env
+
+# Ignore logs
+logs/
+*.log
+
+
+tmp/
+
+
+vendor/
+
+
+.vscode/
+.idea/
+
+*.tmp
+.DS_Store

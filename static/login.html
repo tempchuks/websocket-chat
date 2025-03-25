@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+
+    <h1>Login Page</h1>
+    <p>Please enter your credentials to log in.</p>
+
+    <form id="loginForm" method="POST" action="/login">
+        <!-- Username -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        <br><br>
+
+        <!-- Password -->
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        <br><br>
+
+        <!-- Submit Button -->
+        <button type="submit">Login</button>
+    </form>
+
+    <!-- Optional: Add a simple JavaScript handler -->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission for now
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            console.log('Logging in with:', { username, password });
+
+            // Example of sending data to your server (replace with WebSocket or fetch logic)
+            fetch('http://127.0.0.1:8080/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ username, password })
+            }).then(response => {
+                console.log(response)
+                if (response.ok) {
+                    alert('Login successful!');
+            
+                } else {
+                    alert('Login failed!');
+                }
+            }).catch(error => console.error('Error:', error));
+        });
+    </script>
+
+</body>
+</html>
