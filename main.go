@@ -271,7 +271,7 @@ func authenticationMIddleware(next http.Handler) http.Handler {
 		cookie, err := r.Cookie("jwt")
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 			return
 		}
 
@@ -313,7 +313,7 @@ func hashpass(password []byte) (string, error) {
 	return string(hashed), nil
 }
 func handleSignup(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:8080")
+	w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:8081")
 	w.Header().Set("Access-Control-Allow-Method", "POST,GET,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -351,7 +351,7 @@ func handleSignup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
 }
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:8080")
+	w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:8081")
 	w.Header().Set("Access-Control-Allow-Method", "POST,GET,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -413,9 +413,9 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fs)
-	http.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/index", authenticationMIddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/index.html")
-	})
+	})))
 
 	http.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/login.html")
@@ -444,8 +444,8 @@ func main() {
 
 	http.Handle("/ws", authenticationMIddleware(http.HandlerFunc(handleconnection)))
 
-	fmt.Println("websocket is up and running at port 8080")
-	if err := http.ListenAndServe("[::]:8080", nil); err != nil {
+	fmt.Println("websocket is up and running at port 8081")
+	if err := http.ListenAndServe("[::]:8081", nil); err != nil {
 		fmt.Println(err)
 		return
 	}
