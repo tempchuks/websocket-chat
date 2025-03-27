@@ -43,6 +43,8 @@
             
 
             ws.onopen = () => {
+                const messageElement = document.createElement('div');
+            messageElement.textContent = "";
                 document.getElementById('chat').style.display = 'block';
                 appendMessage('Connected to server as ' + username);
             };
