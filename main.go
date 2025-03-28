@@ -48,20 +48,6 @@ func main() {
 		return
 	}
 
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fs)
-	http.Handle("/index", AuthenticationMIddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/index.html")
-	})))
-
-	http.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/login.html")
-	})
-
-	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/signup.html")
-	})
-
 	db, err := connectDb()
 
 	if err != nil {
@@ -76,11 +62,24 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fs)
+	http.Handle("/index", h.AuthenticationMIddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/index.html")
+	})))
+
+	http.HandleFunc("/signin", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/login.html")
+	})
+
+	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/signup.html")
+	})
 
 	http.HandleFunc("/login", h.HandleLogin)
 	http.HandleFunc("/signup", h.HandleSignup)
 
-	http.Handle("/ws", AuthenticationMIddleware(http.HandlerFunc(h.handleconnection)))
+	http.Handle("/ws", h.AuthenticationMIddleware(http.HandlerFunc(h.handleconnection)))
 
 	fmt.Println("websocket is up and running at port 8081")
 	if err := http.ListenAndServe("[::]:8081", nil); err != nil {

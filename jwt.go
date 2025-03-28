@@ -25,7 +25,7 @@ type contextKey string
 
 const usernamekey contextKey = "username"
 
-func AuthenticationMIddleware(next http.Handler) http.Handler {
+func (h *Handler) AuthenticationMIddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("jwt")
 
